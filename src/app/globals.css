@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { -webkit-text-size-adjust: 100%; }
+  body { @apply bg-chalk text-ink antialiased; }
+  :focus-visible { outline: 2px solid #0E5A5A; outline-offset: 2px; border-radius: 4px; }
+}
+
+@layer components {
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-colors disabled:opacity-50; }
+  .btn-primary { @apply btn bg-peacock text-white hover:bg-peacock-dark; }
+  .btn-outline { @apply btn border border-ink/25 text-ink hover:border-ink hover:bg-white; }
+  .chip { @apply inline-flex items-center rounded-full border border-ink/20 px-3.5 py-1.5 text-sm transition-colors hover:border-ink; }
+  .chip[aria-pressed="true"] { @apply border-peacock bg-peacock text-white; }
+  .container-page { @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
