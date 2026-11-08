@@ -22,10 +22,10 @@ check(products.some((p) => !p.inStock), "demo includes sold-out items");
 // otherwise complete-the-look would have nothing sensible to recommend.
 for (const g of ["men", "women"] as const) {
   for (const o of OCCASIONS) {
-    const pool = queryProducts({ gender: g, occasion: o });
+    const pool = queryProducts({ gender: g, occasion: o }).filter((p) => p.inStock);
     const hasBase = pool.some((p) => p.group === "top" || p.group === "dress");
     const hasShoes = pool.some((p) => p.group === "footwear");
-    check(hasBase && hasShoes, `${g} / ${o}: has a top-or-dress and footwear (${pool.length} items)`);
+    check(hasBase && hasShoes, `${g} / ${o}: has an in-stock top-or-dress and footwear (${pool.length} items)`);
   }
 }
 

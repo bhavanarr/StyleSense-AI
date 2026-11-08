@@ -30,6 +30,20 @@ export interface ColorOption {
   hex: string;
 }
 
+/** A real, authorised product photo. Leave `images` empty until you hold the rights to use a photo. */
+export interface ProductPhoto {
+  src: string; // "/products/xyz.jpg" (in /public) or an https URL on a host allowed in next.config.mjs
+  alt: string;
+  credit: string; // photographer / brand
+  licenseNote: string; // where the permission comes from, e.g. "Supplied by brand under licence #123"
+}
+
+export interface CartLine {
+  productId: string;
+  size: string;
+  qty: number;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -51,6 +65,8 @@ export interface Product {
   isDemo: true;
   /** Only set when a real, verified merchant link exists. Never invented. */
   merchantUrl: string | null;
+  /** Real photography. When absent, the generated illustration is shown. */
+  images?: ProductPhoto[];
 }
 
 export type SortKey = "featured" | "price-asc" | "price-desc" | "discount";

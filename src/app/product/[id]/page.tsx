@@ -1,13 +1,19 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import CompleteTheLook from "@/components/CompleteTheLook";
+import ProductActions from "@/components/ProductActions";
 import ProductCard from "@/components/ProductCard";
-import ProductImage from "@/components/ProductImage";
+import ProductMedia from "@/components/ProductMedia";
+import WishlistButton from "@/components/WishlistButton";
 import { brandById } from "@/data/brands";
 import { categoryLabel, productById, products } from "@/data/products";
 import { discountPct, formatINR } from "@/lib/format";
 
 type Props = { params: Promise<{ id: string }> };
+
+// Only catalogue ids exist. Unknown ids return a real HTTP 404 (not a streamed 200 with "not found" text).
+export const dynamicParams = false;
 
 export function generateStaticParams() {
   return products.map((p) => ({ id: p.id }));
@@ -31,7 +37,11 @@ export default async function ProductPage({ params }: Props) {
         <Link href="/shop" className="hover:text-ink">Shop</Link> / <Link href={`/shop?category=${product.category}`} className="capitalize hover:text-ink">{categoryLabel(product.category)}</Link>
       </nav>
       <div className="grid gap-8 md:grid-cols-2 lg:gap-14">
-        <div className="aspect-[5/6] overflow-hidden rounded-2xl bg-mist"><ProductImage product={product} /></div>
+        <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-mist">
+          <ProductMedia product={product} priority sizes="(min-width: 768px) 50vw, 100vw" />
+          {!product.inStock && <span className="absolute left-3 top-3 rounded-full bg-ink px-3 py-1 text-xs font-medium text-white">Sold out</span>}
+          <WishlistButton productId={product.id} name={product.name} className="absolute right-3 top-3" />
+        </div>
         <div>
           <Link href={`/shop?brand=${product.brandId}`} className="text-sm font-medium text-peacock underline-offset-4 hover:underline">{brand?.name}</Link>
           <h1 className="mt-1 font-display text-3xl font-semibold sm:text-4xl">{product.name}</h1>
@@ -42,35 +52,22 @@ export default async function ProductPage({ params }: Props) {
           </p>
           <p className="mt-1 text-xs text-stone">Sample price in a demo catalogue.</p>
 
-          <p className="mt-6 flex items-center gap-2 text-sm">
+          <p className="mt-5 flex items-center gap-2 text-sm">
             <span aria-hidden className="inline-block h-4 w-4 rounded-full border border-ink/20" style={{ backgroundColor: product.color.hex }} />
             {product.color.name}
           </p>
 
-          <section className="mt-6" aria-labelledby="sizes">
-            <h2 id="sizes" className="text-sm font-semibold">Available sizes{product.sizeSystem === "uk-shoe" ? " (UK)" : product.sizeSystem === "waist" ? " (waist, inches)" : ""}</h2>
-            <ul className="mt-2 flex flex-wrap gap-2">
-              {product.sizes.map((s) => (<li key={s} className="min-w-12 rounded-full border border-ink/20 px-3.5 py-1.5 text-center text-sm">{s}</li>))}
-            </ul>
-            <p className="mt-2 text-xs text-stone">Sizes vary between brands. Measurement-based size advice is coming next.</p>
-          </section>
+          <div className="mt-6"><ProductActions product={product} /></div>
 
-          <div className="mt-8 rounded-card border border-ink/10 bg-white p-4 text-sm">
-            {product.merchantUrl ? (
-              <a href={product.merchantUrl} target="_blank" rel="noopener noreferrer" className="btn-primary w-full">Buy from merchant</a>
-            ) : (
-              <p><strong>Demo product.</strong> This item is part of a fictional sample catalogue, so there is no store link to buy from.</p>
-            )}
-            {!product.inStock && <p className="mt-2 font-medium text-maroon">Currently sold out in this demo.</p>}
-          </div>
-
-          <dl className="mt-8 space-y-3 text-sm">
+          <dl className="mt-8 space-y-3 border-t border-ink/10 pt-6 text-sm">
             <div><dt className="font-semibold">About</dt><dd className="mt-0.5 text-ink/80">{product.description}</dd></div>
             <div><dt className="font-semibold">Material</dt><dd className="mt-0.5 text-ink/80 capitalize">{product.material}</dd></div>
             <div><dt className="font-semibold">Good for</dt><dd className="mt-0.5 capitalize text-ink/80">{product.occasions.join(", ")}</dd></div>
           </dl>
         </div>
       </div>
+
+      <CompleteTheLook anchor={product} />
 
       {more.length > 0 && (
         <section className="mt-16" aria-labelledby="more">

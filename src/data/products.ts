@@ -1,5 +1,6 @@
 import type { Category, ColorOption, Gender, Occasion, OutfitGroup, Product, SizeSystem, StyleTag } from "@/types";
 import { C } from "./colors";
+import { productPhotos } from "./productPhotos";
 
 /**
  * Seed catalogue. Every item is a DEMO product from a fictional brand:
@@ -45,6 +46,7 @@ function build(r: Row): Product {
     occasions, styles, material, ...sizingFor(category, gender),
     description: `${name} in ${color.name}, made from ${material}. A good pick for ${occasions.slice(0, 2).join(" and ")} outfits.`,
     inStock: !SOLD_OUT.has(id), isDemo: true, merchantUrl: null,
+    ...(productPhotos[id]?.length ? { images: productPhotos[id] } : {}),
   };
 }
 
@@ -64,6 +66,9 @@ const rows: Row[] = [
   ["loom-hoodie-grey", "Zip-Up Hoodie", "loom", "men", "jacket", C.grey, 1599, 2499, ["casual", "college"], ["streetwear", "sporty"], "brushed fleece"],
   ["loom-tee-lavender", "Boxy Cotton Tee", "loom", "women", "tshirt", C.lavender, 749, 1199, ["casual", "college"], ["minimal", "streetwear"], "combed cotton"],
   ["loom-jeans-indigo", "Straight Leg Jeans", "loom", "women", "jeans", C.indigo, 1799, 2799, ["casual", "college", "birthday"], ["classic", "minimal"], "rigid denim"],
+  // Budget-friendly basics, so smaller budgets still produce complete outfits
+  ["loom-poplin-sky", "Everyday Poplin Shirt", "loom", "men", "shirt", C.sky, 799, 1399, ["office", "farewell", "date", "birthday", "casual"], ["classic", "smart-casual"], "cotton poplin"],
+  ["loom-chino-navy", "Everyday Chinos", "loom", "men", "trousers", C.navy, 899, 1499, ["office", "farewell", "casual", "college", "birthday"], ["classic", "smart-casual"], "cotton twill"],
   // Aranya: ethnic
   ["aranya-kurta-cream", "Textured Straight Kurta", "aranya", "men", "kurta", C.cream, 2199, 3499, ["festive", "wedding", "farewell", "birthday"], ["ethnic", "classic"], "cotton with tonal weave"],
   ["aranya-kurta-navy", "Cotton Silk Kurta", "aranya", "men", "kurta", C.navy, 2499, 3999, ["festive", "wedding", "farewell"], ["ethnic", "formal"], "cotton silk"],
@@ -81,9 +86,12 @@ const rows: Row[] = [
   ["meridian-loafer-black", "Penny Loafers", "meridian", "men", "shoes", C.black, 3499, 5499, ["office", "farewell", "party"], ["formal", "smart-casual"], "polished leather"],
   ["meridian-runner-navy", "Everyday Running Shoes", "meridian", "unisex", "shoes", C.navy, 2999, 4999, ["casual", "college"], ["sporty"], "engineered mesh"],
   ["meridian-heels-blush", "Block Heel Sandals", "meridian", "women", "shoes", C.blush, 2499, 3999, ["party", "wedding", "farewell", "birthday"], ["classic"], "faux suede"],
+  ["meridian-slingback-black", "Pointed Slingback Heels", "meridian", "women", "shoes", C.black, 2699, 4299, ["party", "wedding", "farewell", "date", "birthday"], ["classic", "minimal"], "faux leather"],
   ["meridian-flats-black", "Pointed Ballet Flats", "meridian", "women", "shoes", C.black, 1999, 3199, ["office", "college", "farewell"], ["classic", "minimal"], "vegan leather"],
   ["meridian-jutti-gold", "Embroidered Juttis", "meridian", "women", "shoes", C.gold, 1799, 2899, ["festive", "wedding"], ["ethnic"], "embroidered fabric"],
   ["meridian-mojari-tan", "Leather Mojari Juttis", "meridian", "men", "shoes", C.tan, 2299, 3699, ["festive", "wedding", "farewell"], ["ethnic", "classic"], "hand-finished leather"],
+  ["meridian-canvas-white", "Canvas Low-Tops", "meridian", "unisex", "shoes", C.white, 799, 1299, ["casual", "college", "birthday", "date", "farewell"], ["minimal", "smart-casual", "streetwear"], "cotton canvas"],
+  ["meridian-sandal-tan", "Strappy Flat Sandals", "meridian", "women", "shoes", C.tan, 699, 1199, ["casual", "college", "birthday", "date", "farewell"], ["minimal", "classic"], "faux leather"],
   // Tidewater: watches
   ["tidewater-steel-dress", "Slim Steel Dress Watch", "tidewater", "unisex", "watch", C.steel, 4999, 7999, ["office", "farewell", "wedding", "party"], ["classic", "formal", "minimal"], "stainless steel"],
   ["tidewater-field-tan", "Field Watch, Leather Strap", "tidewater", "unisex", "watch", C.tan, 3999, 6499, ["casual", "college", "date"], ["classic", "smart-casual"], "steel case, leather strap"],
@@ -108,6 +116,13 @@ const rows: Row[] = [
   ["vela-skirt-olive", "Satin Midi Skirt", "vela", "women", "skirt", C.olive, 1899, 2999, ["party", "farewell", "date", "birthday"], ["classic", "minimal"], "satin"],
   ["vela-blazer-cream", "Relaxed Linen Blazer", "vela", "women", "jacket", C.cream, 3499, 5799, ["office", "farewell", "wedding"], ["classic", "smart-casual"], "linen blend"],
 ];
+
+const budgetWomen: Row[] = [
+  ["vela-puff-cream", "Puff-Sleeve Cotton Top", "vela", "women", "top", C.cream, 699, 1199, ["farewell", "birthday", "date", "casual", "college", "office"], ["classic", "minimal"], "cotton"],
+  ["vela-cottonpants-black", "Straight Cotton Pants", "vela", "women", "trousers", C.black, 999, 1699, ["office", "farewell", "college", "casual", "birthday"], ["classic", "minimal"], "cotton blend"],
+  ["aranya-printed-rust", "Printed Cotton Kurta", "aranya", "women", "kurta", C.rust, 1099, 1799, ["casual", "college", "festive", "farewell", "birthday"], ["ethnic", "boho"], "printed cotton"],
+];
+rows.push(...budgetWomen);
 
 export const products: Product[] = rows.map(build);
 

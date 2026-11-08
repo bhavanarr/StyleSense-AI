@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { brands } from "@/data/brands";
 import { CATEGORIES, OCCASIONS } from "@/lib/catalogue";
@@ -24,6 +25,7 @@ const selectCls = "w-full rounded-full border border-ink/20 bg-white px-3.5 py-2
 export default function FilterBar() {
   const router = useRouter();
   const params = useSearchParams();
+  const [open, setOpen] = useState(false);
   const get = (k: string) => params.get(k) ?? "";
 
   function set(key: string, value: string) {
@@ -33,6 +35,7 @@ export default function FilterBar() {
   }
 
   const hasFilters = Array.from(params.keys()).length > 0;
+  const activeCount = ["occasion", "category", "brand", "max", "sort"].filter((k) => params.get(k)).length;
   // Treat a max price that isn't one of the presets (e.g. from the homepage slider) as its own option.
   const max = get("max");
   const maxOptions = max && !PRICE_STEPS.includes(Number(max)) && Number(max) > 0 ? [...PRICE_STEPS, Number(max)].sort((a, b) => a - b) : PRICE_STEPS;
@@ -43,9 +46,12 @@ export default function FilterBar() {
         {GENDERS.map((g) => (
           <button key={g.label} type="button" className="chip" aria-pressed={get("gender") === g.value} onClick={() => set("gender", g.value)}>{g.label}</button>
         ))}
+        <button type="button" className="chip md:hidden" aria-expanded={open} aria-controls="more-filters" onClick={() => setOpen((v) => !v)}>
+          {open ? "Hide filters" : `More filters${activeCount ? ` (${activeCount})` : ""}`}
+        </button>
         {hasFilters && <Link href="/shop" className="ml-auto text-sm font-semibold underline underline-offset-4 hover:text-peacock">Clear all</Link>}
       </div>
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+      <div id="more-filters" className={`${open ? "grid" : "hidden"} grid-cols-2 gap-3 md:grid md:grid-cols-5`}>
         <label className="text-xs font-medium text-stone">Occasion
           <select className={selectCls} value={get("occasion")} onChange={(e) => set("occasion", e.target.value)}>
             <option value="">Any</option>

@@ -2,8 +2,9 @@ import Link from "next/link";
 import { brands } from "@/data/brands";
 import { productById, products } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
-import ProductImage from "@/components/ProductImage";
+import ProductMedia from "@/components/ProductMedia";
 import OccasionPicker from "@/components/OccasionPicker";
+import StylistEntry from "@/components/StylistEntry";
 import type { Product } from "@/types";
 
 const HERO_IDS = ["vela-wrap-emerald", "kasa-blazer-navy", "aranya-anarkali-mustard", "meridian-sneaker-white"];
@@ -26,11 +27,13 @@ export default function HomePage() {
         <div aria-hidden className="grid grid-cols-2 gap-3 sm:gap-4">
           {heroItems.map((p, i) => (
             <div key={p.id} className={`aspect-[5/6] overflow-hidden rounded-card ${i % 2 === 1 ? "translate-y-6" : ""}`}>
-              <ProductImage product={p} />
+              <ProductMedia product={p} sizes="25vw" />
             </div>
           ))}
         </div>
       </section>
+
+      <StylistEntry />
 
       <section className="container-page py-10" aria-labelledby="who">
         <h2 id="who" className="sr-only">Shop by department</h2>
@@ -45,7 +48,7 @@ export default function HomePage() {
                 <p className="mt-1 max-w-[16rem] text-sm text-ink/70">{d.note}</p>
                 <span className="mt-4 inline-block text-sm font-semibold underline underline-offset-4 group-hover:text-peacock">Browse {d.title.toLowerCase()}</span>
               </div>
-              {d.item && <div aria-hidden className="h-32 w-28 shrink-0 overflow-hidden rounded-xl"><ProductImage product={d.item} /></div>}
+              {d.item && <div aria-hidden className="h-32 w-28 shrink-0 overflow-hidden rounded-xl"><ProductMedia product={d.item} sizes="120px" /></div>}
             </Link>
           ))}
         </div>
