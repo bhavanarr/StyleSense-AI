@@ -11,6 +11,7 @@ const NAV = [
   { href: "/shop?gender=men", label: "Men" },
   { href: "/shop", label: "All products" },
   { href: "/stylist", label: "AI Stylist" },
+  { href: "/size-profile", label: "My sizes" },
 ];
 
 export default function Header() {

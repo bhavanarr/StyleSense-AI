@@ -9,8 +9,9 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test:data": "tsx scripts/validate-catalogue.ts",
-    "test": "npm run test:data && tsx scripts/test-cart.ts && tsx scripts/test-outfit.ts && tsx scripts/test-stylist.ts && vitest run",
-    "test:ui": "vitest run"
+    "test": "npm run test:data && tsx scripts/test-cart.ts && tsx scripts/test-outfit.ts && tsx scripts/test-stylist.ts && tsx scripts/test-sizing.ts && vitest run",
+    "test:ui": "vitest run",
+    "example:sizing": "tsx scripts/example-sizing.ts"
   },
   "dependencies": {
     "next": "^15.5.29",

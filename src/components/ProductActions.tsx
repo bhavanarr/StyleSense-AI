@@ -1,20 +1,29 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { recommendSize } from "@/lib/sizing/recommend";
+import type { FitPreference } from "@/lib/sizing/types";
+import SizeAdvice from "./SizeAdvice";
 import { MAX_QTY } from "@/lib/store/cart";
 import { useShop } from "@/lib/store/ShopProvider";
 import type { Product } from "@/types";
 
 export default function ProductActions({ product }: { product: Product }) {
-  const { addToCart, cart, ready, isWishlisted, toggleWishlist, notify } = useShop();
+  const { addToCart, cart, ready, isWishlisted, toggleWishlist, notify, profile } = useShop();
   const free = product.sizeSystem === "free";
   const [size, setSize] = useState<string | null>(free ? product.sizes[0] : null);
   const [qty, setQty] = useState(1);
   const [error, setError] = useState<string | null>(null);
   const [added, setAdded] = useState(false);
+  const [fitPreview, setFitPreview] = useState<FitPreference | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
+
+  // The saved profile decides the suggestion; the fit chips only preview a different preference.
+  const fit = fitPreview ?? profile?.fit ?? "regular";
+  const advice = useMemo(() => recommendSize(product, profile ? { ...profile, fit } : null), [product, profile, fit]);
+  const suggested = advice.status === "ok" ? advice.size : null;
 
   const inCart = ready && size ? cart.find((l) => l.productId === product.id && l.size === size)?.qty ?? 0 : 0;
   const saved = ready && isWishlisted(product.id);
@@ -43,12 +52,15 @@ export default function ProductActions({ product }: { product: Product }) {
           <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label="Size">
             {product.sizes.map((s) => (
               <button key={s} type="button" className="chip min-w-12 justify-center" aria-pressed={size === s}
-                onClick={() => { setSize(s); setError(null); }}>{s}</button>
+                onClick={() => { setSize(s); setError(null); }}>{s}{s === suggested && <span aria-hidden className="ml-1 text-marigold-dark">★</span>}</button>
             ))}
           </div>
-          <p className="mt-2 text-xs text-stone">Sizes differ between brands. Measurement-based size advice is coming in a later update.</p>
+          {suggested && <p className="mt-2 text-xs text-stone">★ marks the size suggested for your measurements.</p>}
         </fieldset>
       )}
+
+      <SizeAdvice product={product} ready={ready} profile={profile} advice={advice} fit={fit} onFitChange={setFitPreview}
+        selected={size} onSelect={(sz) => { setSize(sz); setError(null); }} />
 
       <div className="flex items-center gap-3">
         <span id="qty-label" className="text-sm font-semibold">Quantity</span>

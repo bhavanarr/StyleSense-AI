@@ -2,6 +2,8 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { CartLine } from "@/types";
+import { hasMeasurements, parseStoredProfile, PROFILE_KEY } from "@/lib/sizing/profile";
+import type { MeasurementProfile } from "@/lib/sizing/types";
 import { addLine, CART_KEY, parseCart, parseWishlist, removeLine, setQty as setQtyPure, toggleId, validateAdd, WISHLIST_KEY } from "./cart";
 
 /**
@@ -16,6 +18,10 @@ interface ShopContextValue {
   storageError: boolean;
   cart: CartLine[];
   wishlist: string[];
+  /** Saved body measurements (always cm internally), or null when none are saved. */
+  profile: MeasurementProfile | null;
+  saveProfile: (profile: MeasurementProfile) => void;
+  clearProfile: () => void;
   cartCount: number;
   /** Returns an error message, or null on success. */
   addToCart: (productId: string, size: string | null, qty?: number) => string | null;
@@ -42,6 +48,7 @@ export default function ShopProvider({ children }: { children: React.ReactNode }
   const [storageError, setStorageError] = useState(false);
   const [cart, setCart] = useState<CartLine[]>([]);
   const [wishlist, setWishlist] = useState<string[]>([]);
+  const [profile, setProfile] = useState<MeasurementProfile | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -50,6 +57,8 @@ export default function ShopProvider({ children }: { children: React.ReactNode }
     try {
       setCart(parseCart(localStorage.getItem(CART_KEY)));
       setWishlist(parseWishlist(localStorage.getItem(WISHLIST_KEY)));
+      const stored = parseStoredProfile(localStorage.getItem(PROFILE_KEY));
+      setProfile(stored && hasMeasurements(stored) ? stored : null);
     } catch {
       setStorageError(true);
     }
@@ -62,17 +71,20 @@ export default function ShopProvider({ children }: { children: React.ReactNode }
     try {
       localStorage.setItem(CART_KEY, JSON.stringify(cart));
       localStorage.setItem(WISHLIST_KEY, JSON.stringify(wishlist));
+      if (profile) localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+      else localStorage.removeItem(PROFILE_KEY);
       setStorageError(false);
     } catch {
       setStorageError(true);
     }
-  }, [cart, wishlist, ready]);
+  }, [cart, wishlist, profile, ready]);
 
   // Keep other open tabs in sync.
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
       if (e.key === CART_KEY) setCart(parseCart(e.newValue));
       if (e.key === WISHLIST_KEY) setWishlist(parseWishlist(e.newValue));
+      if (e.key === PROFILE_KEY) { const next = parseStoredProfile(e.newValue); setProfile(next && hasMeasurements(next) ? next : null); }
     };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
@@ -89,6 +101,9 @@ export default function ShopProvider({ children }: { children: React.ReactNode }
     storageError,
     cart,
     wishlist,
+    profile,
+    saveProfile: (p) => setProfile(p),
+    clearProfile: () => setProfile(null),
     cartCount: cart.reduce((n, l) => n + l.qty, 0),
     addToCart: (productId, size, qty = 1) => {
       const err = validateAdd(productId, size);
@@ -113,7 +128,7 @@ export default function ShopProvider({ children }: { children: React.ReactNode }
     },
     clearWishlist: () => setWishlist([]),
     notify,
-  }), [ready, storageError, cart, wishlist, notify]);
+  }), [ready, storageError, cart, wishlist, profile, notify]);
 
   return (
     <Ctx.Provider value={value}>

@@ -13,6 +13,7 @@ export default function Footer() {
           <Link href="/shop?gender=men" className="hover:text-marigold">Men</Link>
           <Link href="/shop" className="hover:text-marigold">All products</Link>
           <Link href="/stylist" className="hover:text-marigold">AI Stylist</Link>
+          <Link href="/size-profile" className="hover:text-marigold">My sizes</Link>
           <Link href="/wishlist" className="hover:text-marigold">Wishlist</Link>
           <Link href="/cart" className="hover:text-marigold">Cart</Link>
         </nav>
